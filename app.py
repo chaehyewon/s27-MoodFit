@@ -27,17 +27,25 @@ from gradio_client import utils as _gc_utils  # noqa: E402
 # 터지는 버그(#10178) 우회. Label/JSON 컴포넌트가 생성하는
 # additionalProperties: true 스키마에서 발생한다.
 _orig_get_type = _gc_utils.get_type
+
+
 def _safe_get_type(schema):
     if isinstance(schema, bool):
         return "Any"
     return _orig_get_type(schema)
+
+
 _gc_utils.get_type = _safe_get_type
 
 _orig_j2p = _gc_utils._json_schema_to_python_type
+
+
 def _safe_j2p(schema, defs=None):
     if isinstance(schema, bool):
         return "Any"
     return _orig_j2p(schema, defs)
+
+
 _gc_utils._json_schema_to_python_type = _safe_j2p
 
 from dotenv import load_dotenv
@@ -164,7 +172,7 @@ def build_ui() -> gr.Interface:
             gr.Label(num_top_classes=TOP_K, label="음식 분류 결과"),
             gr.JSON(label="칼로리 & 영양소 추정"),
         ],
-        title="🍱 Calorie Counter (LangChain LCEL)",
+        title="🍱 Calorie Counter (LangChain LCEL)_TEST",
         description=(
             "음식 사진을 업로드하면 HF Inference API로 음식을 인식하고, "
             "LangChain LCEL 체인이 1인분 기준 칼로리/영양소를 추정합니다. "
