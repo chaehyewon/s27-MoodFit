@@ -1,4 +1,6 @@
 """
+[[MoodFit에서는 필요X]]
+
 6주차 모델 설정 — HuggingFace Inference API
 ===========================================
 - VISION_MODEL: 음식 이미지 분류 모델
