@@ -1,5 +1,5 @@
 # 절대 GitHub에 push 하면 안 되는 파일
-.env                # HF_TOKEN 노출
+.env
 
 # Python
 __pycache__/

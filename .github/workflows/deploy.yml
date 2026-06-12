@@ -1,20 +1,19 @@
-# 9주차 CI/CD 템플릿: GitHub push → Oracle E2.1.Micro 자동 배포
-# 학생 본인 리포에 그대로 복사. Secrets 4개(SSH_HOST, SSH_USER, SSH_KEY, HF_TOKEN) 등록 후 작동.
+# MoodFit CI/CD: GitHub push → Oracle OCI 자동 배포
 #
 # 작동 흐름:
-#   학생이 main 브랜치에 push
-#   → ubuntu-latest 러너 부팅
+#   main 브랜치에 push
+#   → GitHub Actions 실행
 #   → SSH로 Oracle 서버 접속
-#   → /home/ubuntu/calorie 에서 git pull
-#   → docker compose 새 이미지 빌드·재기동
-#   → <id>-demo.aiweb2026.site 즉시 반영
+#   → /home/ubuntu/moodfit 에서 최신 코드 반영
+#   → .env에 GEMINI_API_KEY 갱신
+#   → docker compose 새 이미지 빌드 및 컨테이너 재기동
+#   → s27-demo.aiweb2026.site 즉시 반영
 #
-# 사전 1회 서버 설정 (수업 중 강사 시연):
-#   ssh ubuntu@<서버IP>
-#   mkdir -p /home/ubuntu/calorie && cd /home/ubuntu/calorie
-#   git clone https://github.com/<학생>/calorie-counter.git .
-#   echo "HF_TOKEN=hf_xxx" > .env && chmod 600 .env
-#   docker compose up -d --build
+# 필요한 GitHub Secrets:
+#   SSH_HOST       = Oracle Public IP
+#   SSH_USER       = ubuntu
+#   SSH_KEY        = Oracle SSH private key
+#   GEMINI_API_KEY = Google Gemini API key
 
 name: Deploy MoodFit to Oracle
 

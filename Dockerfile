@@ -1,9 +1,12 @@
-# 6주차 칼로리카운터(Gradio 5 + LangChain + HF Inference) → Oracle E2.1.Micro 배포용 이미지
-# 9주차 수업 자산. 6주차 코드(app.py, model_config.py, requirements.txt) 그대로 재활용.
+# MoodFit — Oracle OCI 배포용 Docker 이미지
 #
-# 빌드:   docker build -t calorie-counter:latest .
-# 실행:   docker run -d -p 7860:7860 --env-file .env calorie-counter:latest
-# (compose 사용 권장 → docker-compose.yml 참조)
+# 빌드:
+#   docker build -t moodfit:latest .
+#
+# 실행:
+#   docker run -d -p 7861:7860 --env-file .env moodfit:latest
+#
+# 실제 운영에서는 docker-compose.yml 사용 권장
 
 FROM python:3.11-slim
 
@@ -22,7 +25,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
-# 앱 소스 (6주차 구조 그대로)
+# 앱 소스 복사
 COPY app.py model_config.py ./
 
 EXPOSE 7860

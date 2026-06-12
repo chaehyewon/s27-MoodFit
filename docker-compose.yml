@@ -1,12 +1,11 @@
-# 6주차 칼로리카운터 → Oracle E2.1.Micro 운영용 compose
-# 9주차 수업 자산. SSH로 Oracle 인스턴스 들어간 후 이 파일 한 장으로 운영.
+# MoodFit — Oracle OCI 운영용 Docker Compose
 #
 # 운영 명령:
-#   docker compose up -d --build      # 첫 빌드 + 백그라운드 기동
-#   docker compose logs -f            # 실시간 로그
-#   docker compose ps                 # 상태 확인
-#   docker compose down               # 정지·제거
-#   git pull && docker compose up -d --build   # 코드 갱신 후 재배포
+# docker compose up -d --build                # 첫 빌드 + 백그라운드 실행
+# docker compose logs -f                      # 실시간 로그 확인
+# docker compose ps                           # 컨테이너 상태 확인
+# docker compose down                         # 컨테이너 중지 및 제거
+# git pull && docker compose up -d --build    # 코드 갱신 후 재배포
 
 services:
   moodfit:
