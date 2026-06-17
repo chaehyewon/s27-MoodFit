@@ -41,6 +41,9 @@ SYSTEM_PROMPT = """
 * 개선 추천은 현재 사진에서 실제로 보이는 요소를 바탕으로 작성하세요.
 * 긴 문단 금지.
 * 각 항목은 짧고 직관적으로 작성하세요.
+* 사진이 흑백이거나 일부만 보여도, 보이는 의상 요소만으로 반드시 모든 항목을 빠짐없이 작성하세요.
+* 정보가 부족한 항목도 추정 가능한 내용으로 채우고 절대 비워두지 마세요.
+* 응답을 반드시 ## 📝 한 줄 총평 항목까지 완성하세요. 중간에 끊지 마세요.
 * 반드시 아래 형식을 그대로 따르세요.
 
 점수 산정 기준:
@@ -115,6 +118,7 @@ USER_PROMPT = """
 * 잘한 포인트는 3개의 bullet로 작성
 * 개선 추천은 3개의 bullet로 작성
 * 얼굴, 체형, 외모 평가 금지
+* 반드시 한 줄 총평까지 모든 항목을 완성하세요.
 """
 
 
@@ -225,7 +229,6 @@ footer { display: none !important; }
     box-shadow: 0 24px 64px rgba(30, 60, 30, 0.28);
 }
 
-/* 장식 원 */
 .hero-card::before {
     content: "";
     position: absolute;
@@ -336,7 +339,7 @@ footer { display: none !important; }
     margin-bottom: 18px;
 }
 
-/* 이미지 업로드 영역 — 커스텀 */
+/* ── 커스텀 업로드 영역 ── */
 .custom-upload-wrap {
     position: relative;
     width: 100%;
@@ -739,7 +742,7 @@ button:hover {
     border-left: 6px solid #e05555;
 }
 
-/* "새 코디 분석하기" 버튼 - 아웃라인 스타일 */
+/* ── 새 코디 분석하기 버튼 ── */
 .reset-btn {
     background: transparent !important;
     border: 2px solid #4a7c59 !important;
@@ -786,7 +789,7 @@ button:hover {
 """
 
 
-# 컬러 이름 → HEX 매핑 (주요 한국어/영어 색상)
+# 컬러 이름 → HEX 매핑
 COLOR_MAP = {
     "블랙": "#1a1a1a",
     "화이트": "#f5f5f5",
@@ -887,11 +890,9 @@ def make_tags(keyword_text: str) -> str:
 
 
 def make_color_swatches(color_text: str) -> str:
-    """컬러 조합 텍스트를 색상 스와치 HTML로 변환"""
     parts = re.split(r"\s*\+\s*", color_text.strip())
     if not parts or len(parts) < 2:
         return f'<div class="card-body">{color_text}</div>'
-
     items = []
     for i, part in enumerate(parts):
         part = part.strip()
@@ -904,7 +905,6 @@ def make_color_swatches(color_text: str) -> str:
         )
         if i < len(parts) - 1:
             items.append('<span class="color-sep">+</span>')
-
     return f'<div class="color-swatch-row">{"".join(items)}</div>'
 
 
@@ -947,7 +947,6 @@ def markdown_to_card_html(text: str) -> str:
             <div class="report-chip">OOTD ANALYSIS</div>
         </div>
 
-        <!-- 점수 카드 -->
         <div class="card score-card">
             <div class="score-card-inner">
                 <div class="score-left">
@@ -959,11 +958,9 @@ def markdown_to_card_html(text: str) -> str:
                     <span class="score-total">/ 100</span>
                 </div>
             </div>
-
             <div class="progress">
                 <div class="progress-bar" style="width: {score_num}%;"></div>
             </div>
-
             <div class="score-breakdown">
                 <div class="score-mini">
                     <div class="score-mini-label">컬러 조화</div>
@@ -984,7 +981,6 @@ def markdown_to_card_html(text: str) -> str:
             </div>
         </div>
 
-        <!-- 스타일 무드 -->
         <div class="card">
             <div class="card-title">😊 스타일 무드</div>
             <div class="card-body">
@@ -994,7 +990,6 @@ def markdown_to_card_html(text: str) -> str:
             </div>
         </div>
 
-        <!-- 잘한 점 / 개선 추천 -->
         <div class="card-grid">
             <div class="card good-card">
                 <div class="card-title">👍 잘한 점</div>
@@ -1006,7 +1001,6 @@ def markdown_to_card_html(text: str) -> str:
             </div>
         </div>
 
-        <!-- 컬러 팔레트 / 어울리는 장소 -->
         <div class="card-grid">
             <div class="card mini-card color-card">
                 <div class="card-title">🎨 컬러 팔레트</div>
@@ -1018,7 +1012,6 @@ def markdown_to_card_html(text: str) -> str:
             </div>
         </div>
 
-        <!-- 한 줄 총평 -->
         <div class="card summary-card">
             <div class="card-title">💬 AI 한 줄 총평</div>
             <div class="card-body">{summary}</div>
@@ -1058,7 +1051,7 @@ def analyze_outfit(image: Image.Image | None) -> str:
             generation_config={
                 "temperature": 0.85,
                 "top_p": 0.95,
-                "max_output_tokens": 1800,
+                "max_output_tokens": 4000,
             },
         )
 
@@ -1106,7 +1099,6 @@ EMPTY_HTML = """
 
 
 def analyze_from_b64(b64_data: str) -> str:
-    """base64 문자열을 PIL Image로 변환 후 분석"""
     import base64
 
     if not b64_data:
@@ -1117,7 +1109,6 @@ def analyze_from_b64(b64_data: str) -> str:
         </div>
         """
     try:
-        # data:image/jpeg;base64,... 형식에서 실제 데이터만 추출
         if "," in b64_data:
             b64_data = b64_data.split(",", 1)[1]
         img_bytes = base64.b64decode(b64_data)
@@ -1134,7 +1125,6 @@ def analyze_from_b64(b64_data: str) -> str:
 
 UPLOADER_JS = """
 () => {
-    // 전역 변수에 base64 저장 (Textbox 브릿지 대신 사용)
     window._moodfit_b64 = '';
 
     function initUploader() {
@@ -1201,9 +1191,6 @@ def build_ui() -> gr.Blocks:
         js=UPLOADER_JS,
     ) as demo:
 
-        # 업로드된 이미지 base64를 저장하는 state
-        image_state = gr.State("")
-
         gr.HTML("""
         <div class="main-shell">
             <section class="hero-card">
@@ -1231,7 +1218,6 @@ def build_ui() -> gr.Blocks:
                         전신 또는 상하의가 잘 보이는 사진을 업로드하면 더 정확한 피드백을 받을 수 있어요.
                     </div>
 
-                    <!-- 커스텀 업로드 영역 -->
                     <div class="custom-upload-wrap" id="uploadWrap">
                         <div class="upload-placeholder" id="uploadPlaceholder">
                             <div class="upload-icon">⬆</div>
@@ -1243,7 +1229,6 @@ def build_ui() -> gr.Blocks:
                     </div>
                     """)
 
-                    # 숨겨진 Textbox: JS → Python 브릿지
                     image_b64_input = gr.Textbox(
                         value="",
                         visible=False,
@@ -1267,7 +1252,6 @@ def build_ui() -> gr.Blocks:
         def do_reset():
             return ("", EMPTY_HTML)
 
-        # JS가 window._moodfit_b64를 반환 → image_b64_input에 저장 → analyze_from_b64 호출
         submit_button.click(
             fn=lambda b64: b64,
             inputs=image_b64_input,
